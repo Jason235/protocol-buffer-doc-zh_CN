@@ -142,5 +142,11 @@ for the 64-bit version.
 对于64位版本。
 
 Note that the second shift – the (n >> 31) part – is an arithmetic shift. So, in other words, the result of the shift is either a number that is all zero bits (if n is positive) or all one bits (if n is negative).
+请注意，第二个移位（（31））部分是算术移位。因此，换句话说，移位的结果是一个数字，即所有的零位（如果n是正）或所有的位（如果n是负）。
 
 When the sint32 or sint64 is parsed, its value is decoded back to the original, signed version. 
+当sint32或sint64解析，其价值是解码回到原来的，带符号。
+
+### Non-varint Numbers
+### Non-varint 数字
+Non-varint numeric types are simple – double and fixed64 have wire type 1, which tells the parser to expect a fixed 64-bit lump of data; similarly float and fixed32 have wire type 5, which tells it to expect 32 bits. In both cases the values are stored in little-endian byte order. 
