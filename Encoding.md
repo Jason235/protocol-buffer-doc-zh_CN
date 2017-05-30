@@ -150,3 +150,48 @@ When the sint32 or sint64 is parsed, its value is decoded back to the original, 
 ### Non-varint Numbers
 ### Non-varint 数字
 Non-varint numeric types are simple – double and fixed64 have wire type 1, which tells the parser to expect a fixed 64-bit lump of data; similarly float and fixed32 have wire type 5, which tells it to expect 32 bits. In both cases the values are stored in little-endian byte order. 
+Non-varint数值类型是简单的–double和fixed64有编码为型1，它告诉解析器预期固定的64位块数据；同样，float　和　fixed32有编码为型５，并告诉它为32位。在这两种情况下的值存储在little-endian字节顺序。
+
+### Strings
+### Strings
+A wire type of 2 (length-delimited) means that the value is a varint encoded length followed by the specified number of bytes of data. 
+编码类型2（length-delimited）意味着值是一个varint编码长度的指定字节数的数据。
+
+```
+message Test2 {
+  required string b = 2;
+}
+```
+
+Setting the value of b to "testing" gives you: 
+将B的值设置为“testing”给你：
+
+```
+12 07 74 65 73 74 69 6e 67
+
+----- 74 65 73 74 69 6e 67
+```
+
+The red bytes are the UTF8 of "testing". The key here is 0x12 → tag = 2, type = 2. The length varint in the value is 7 and lo and behold, we find seven bytes following it – our string. 
+红色是UTF8字节“testing”。这里的关键是0x12→tag= 2，type = 2。在值的长度为７的varint，我们找到七个字节之后–字符串。
+
+## Embedded Messages
+## 嵌入式信息
+Here's a message definition with an embedded message of our example type, Test1: 
+这是一个与我们的样列嵌入式消息定义, Test1：
+
+```
+message Test3 {
+  required Test1 c = 3;
+}
+```
+And here's the encoded version, again with the Test1's a field set to 150: 
+这里的编码版本，再次与Test1的字段设置为150：
+```
+1a 03 08 96 01
+```
+As you can see, the last three bytes are exactly the same as our first example (08 96 01), and they're preceded by the number 3 – embedded messages are treated in exactly the same way as strings (wire type = 2). 
+正如你所看到的，最后三个字节与我们的第一个例子（08 96 01）完全一样，它们前面的数字是-嵌入的消息被处理的方式完全相同的字符串（编码类型= 2）。
+
+## Optional And Repeated Elements
+## 可选和重复元素
