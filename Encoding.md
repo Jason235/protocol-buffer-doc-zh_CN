@@ -195,3 +195,70 @@ As you can see, the last three bytes are exactly the same as our first example (
 
 ## Optional And Repeated Elements
 ## 可选和重复元素
+If a proto2 message definition has repeated elements (without the [packed=true] option), the encoded message has zero or more key-value pairs with the same tag number. These repeated values do not have to appear consecutively; they may be interleaved with other fields. The order of the elements with respect to each other is preserved when parsing, though the ordering with respect to other fields is lost. In proto3, repeated fields use packed encoding, which you can read about below. 
+如果一个proto2消息定义重复元素（没有[packed=true]选项），编码的消息有零个或多个具有相同的标签号码键-值对。这些重复值不必连续出现，它们可能与其他字段交错。在分析时保留元素彼此的顺序，尽管相对于其他字段的排序丢失。在proto3，重复的字段使用压缩编码，你可以阅读下面。
+
+For any non-repeated fields in proto3, or optional fields in proto2, the encoded message may or may not have a key-value pair with that tag number. 
+对于任何非重复字段在proto3可选字段，或在proto2，编码的消息可能会或可能不会有一个键值对，标签号码。
+
+Normally, an encoded message would never have more than one instance of a non-repeated field. However, parsers are expected to handle the case in which they do. For numeric types and strings, if the same field appears multiple times, the parser accepts the last value it sees. For embedded message fields, the parser merges multiple instances of the same field, as if with the Message::MergeFrom method – that is, all singular scalar fields in the latter instance replace those in the former, singular embedded messages are merged, and repeated fields are concatenated. The effect of these rules is that parsing the concatenation of two encoded messages produces exactly the same result as if you had parsed the two messages separately and merged the resulting objects. That is, this: 
+通常，编码的消息不会有不止一个非重复字段的实例。然而，解析器预计处理的情况下，他们这样做。对于数值类型和字符串，如果同一字段出现多次，解析器接受它看到的最后一个值。嵌入式消息字段，解析器将同一领域的多个实例，如 Message::mergefrom 方法–即在后者的实例的所有奇异的标量场取代前者，奇异的嵌入式邮件合并，和重复的字段级联。这些规则的作用是，解析两个编码消息的串联，会产生完全相同的结果，就像单独分析两个消息并合并产生的对象一样。也就是说，这个：
+
+```
+MyMessage message;
+message.ParseFromString(str1 + str2);
+```
+
+相当于这个：
+
+```
+MyMessage message, message2;
+message.ParseFromString(str1);
+message2.ParseFromString(str2);
+message.MergeFrom(message2);
+```
+
+This property is occasionally useful, as it allows you to merge two messages even if you do not know their types. 
+此属性有时是有用的，因为它允许您合并两个消息，即使您不知道它们的类型。
+
+### Packed Repeated Fields
+### 用重复的字段
+Version 2.1.0 introduced packed repeated fields, which in proto2 are declared like repeated fields but with the special [packed=true] option. In proto3, repeated fields are packed by default. These function like repeated fields, but are encoded differently. A packed repeated field containing zero elements does not appear in the encoded message. Otherwise, all of the elements of the field are packed into a single key-value pair with wire type 2 (length-delimited). Each element is encoded the same way it would be normally, except without a tag preceding it. 
+版本2.1.0介绍包装重复字段，这在proto2声明类似重复的字段而特殊的[packed=true]选项。在proto3，重复的字段填充默认。这些函数类似重复字段，但编码方式不同。在编码消息中不会出现包含零元素的填充重复字段。否则，该字段的所有元素都打包成一个单一的键值对与线类型2（长度分隔）。每个元素的编码方式与通常情况相同，但没有前面的标记。
+
+For example, imagine you have the message type: 
+例如，想象你有消息类型：
+
+```
+message Test4 {
+  repeated int32 d = 4 [packed=true];
+}
+```
+
+Now let's say you construct a Test4, providing the values 3, 270, and 86942 for the repeated field d. Then, the encoded form would be: 
+现在让我们说你建立一个Test4，提供值3、270、86942 d后重复字段的编码形式，将：
+
+```
+22        // tag (field number 4, wire type 2)
+06        // payload size (6 bytes)
+03        // first element (varint 3)
+8E 02     // second element (varint 270)
+9E A7 05  // third element (varint 86942)
+```
+
+Only repeated fields of primitive numeric types (types which use the varint, 32-bit, or 64-bit wire types) can be declared "packed".
+只是重复原始数字类型的字段（使用varint，32位或64位编码类型）可以宣布“packed”。
+
+Note that although there's usually no reason to encode more than one key-value pair for a packed repeated field, encoders must be prepared to accept multiple key-value pairs. In this case, the payloads should be concatenated. Each pair must contain a whole number of elements.
+请注意，虽然通常没有理由对一个重复的重复字段编码一个以上的键值对，编码器必须准备接受多个键值对。在这种情况下，应该连接有效载荷。每对必须包含一系列元素。
+
+Protocol buffer parsers must be able to parse repeated fields that were compiled as packed as if they were not packed, and vice versa. This permits adding [packed=true] to existing fields in a forward- and backward-compatible way.
+Protocol buffer解析器必须能够解析被打包的重复字段，好像它们没有打包一样，反之亦然。这允许在向前和向后兼容的方式中对现有字段添加[packed]。
+
+## Field Order
+## Field Order
+While you can use field numbers in any order in a .proto, when a message is serialized its known fields should be written sequentially by field number, as in the provided C++, Java, and Python serialization code. This allows parsing code to use optimizations that rely on field numbers being in sequence. However, protocol buffer parsers must be able to parse fields in any order, as not all messages are created by simply serializing an object – for instance, it's sometimes useful to merge two messages by simply concatenating them.
+虽然你可以在任何顺序使用字段编号 .proto，当消息序列化的已知领域应按场数写在了c，java，和Python的序列化代码。这允许解析代码使用依赖于字段编号的顺序的优化。然而，Protocol buffer 解析器必须能够分析领域的任何命令，因为不是所有的消息都通过简单实例对象序列化–创建，通过简单连接两消息合并有时很有用。
+
+If a message has unknown fields, the current Java and C++ implementations write them in arbitrary order after the sequentially-ordered known fields. The current Python implementation does not track unknown fields. 
+如果邮件有未知的领域，目前的java和C实现写在任意阶后有序的已知领域。当前Python实现不跟踪未知字段。
