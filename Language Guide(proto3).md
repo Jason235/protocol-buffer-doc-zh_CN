@@ -1,24 +1,24 @@
-# Protocol Buffers Language Guide (proto3) 翻译
+# Language Guide (proto3 语言指南)
 
 标签（空格分隔）： protobuf
 
+[TOC]
+
 ---
 
-# Language Guide (proto3) 
-# 语言指南（proto3）
+This guide describes how to use the protocol buffer language to structure your protocol buffer data, including .proto file syntax and how to generate data access classes from your .proto files. It covers the proto3 version of the protocol buffers language: for information on the older proto2 syntax, see the Proto2 Language Guide.
+本指南介绍如何使用 Protocol buffer 语言构造 Protocol buffer 数据，包括 .proto 文件语法以及如何从 .proto 文件生成数据访问类。它涵盖了 protocol buffers 语言 proto3 版本：对老版 proto2 语法信息，请参看 [proto2 语言指南]。
 
-This guide describes how to use the protocol buffer language to structure your protocol buffer data, including .proto file syntax and how to generate data access classes from your .proto files. It covers the proto3 version of the protocol buffers language: for information on the older proto2 syntax, see the Proto2 Language Guide. 
-本指南介绍如何使用Protocol buffer语言构造Protocol buffer  数据，包括 .proto 文件语法以及如何从 .proto 文件生成数据访问类。它涵盖了protocol buffers语言proto3版本：对老年proto2语法信息，请看proto2语言指南。
+This is a reference guide – for a step by step example that uses many of the features described in this document, see the tutorial for your chosen language (currently proto2 only; more proto3 documentation is coming soon).
+该参考指南是使用循序渐进的例子来描述 protocal buffer 的特性，请参看[教程]你选择的语言（目前只有 proto2；更多 proto3 文文档稍后推出）。
 
-This is a reference guide – for a step by step example that uses many of the features described in this document, see the tutorial for your chosen language (currently proto2 only; more proto3 documentation is coming soon). 
-该参考指南是使用循序渐进的例子来描述protocal buffer的特性，看你选择的语言的教程（目前仅proto2；更proto3文件即将到来）。
+## Defining A Message Type 定义消息类型
 
-## Defining A Message Type
-## 定义消息类型
+First let's look at a very simple example. Let's say you want to define a search request message format, where each search request has a query string, the particular page of results you are interested in, and a number of results per page. Here's the .proto file you use to define the message type.
 
-First let's look at a very simple example. Let's say you want to define a search request message format, where each search request has a query string, the particular page of results you are interested in, and a number of results per page. Here's the .proto file you use to define the message type. 
-首先让我们看一个很简单的例子。假设您想要定义一个搜索请求消息格式，其中每个搜索请求具有查询字符串、您感兴趣的结果的特定页和每页的结果数。这里是用于定义消息类型的.proto文件。
-``` proto
+首先让我们看一个非常简单的例子。假设您想要定义一个搜索请求消息格式，其中每个搜索请求包含查询字符串、您期待的特定页数据和期望每页数据调条数。以下是用于定义该消息类型的 .proto 文件。
+
+``` protobuf
 syntax = "proto3";
 
 message SearchRequest {
@@ -27,91 +27,118 @@ message SearchRequest {
   int32 result_per_page = 3;
 }
 ```
-- The first line of the file specifies that you're using proto3 syntax: if you don't do this the protocol buffer compiler will assume you are using proto2. This must be the first non-empty, non-comment line of the file. 
-- 该文件的第一行指定你用proto3语法：如果你不这样做的protocol buffer编译器会假设您使用的是proto2。这必须文件的第一个非空的，非注释行。
-- The SearchRequest message definition specifies three fields (name/value pairs), one for each piece of data that you want to include in this type of message. Each field has a name and a type. 
-- SearchRequest消息定义指定的三个字段（名称/值 对），每一件你想要包含在这种类型的信息数据。每个字段都有名称和类型。
 
-### Specifying Field Types
-### 指定字段类型
-In the above example, all the fields are scalar types: two integers (page_number and result_per_page) and a string (query). However, you can also specify composite types for your fields, including enumerations and other message types. 
-在上面的例子中，所有的字段都是标量类型：两个整数（page_number和result_per_page）和一个字符串（query）。然而，你也可以指定你的领域的复合类型，包括枚举和其他类型的消息。
+- The first line of the file specifies that you're using proto3 syntax: if you don't do this the protocol buffer compiler will assume you are using proto2. This must be the first non-empty, non-comment line of the file.
+- 该文件的第一行指定你用 proto3 语法：如果你不这样做的 protocol buffer 编译器会假设您使用的是 [proto2]。文件第一行必须非空的，非注释的。
 
-### Assigning Tags
-### 分配标签
-As you can see, each field in the message definition has a unique numbered tag. These tags are used to identify your fields in the message binary format, and should not be changed once your message type is in use. Note that tags with values in the range 1 through 15 take one byte to encode, including the identifying number and the field's type (you can find out more about this in Protocol Buffer Encoding). Tags in the range 16 through 2047 take two bytes. So you should reserve the tags 1 through 15 for very frequently occurring message elements. Remember to leave some room for frequently occurring elements that might be added in the future. 
-正如您所看到的，消息定义中的每个字段都有唯一的编号标记。这些标记用于标识消息二进制格式中的字段，并且在您的消息类型使用后不应更改该字段。请注意，取值范围在1到15之间的标签需要一个字节来编码，包括标识号和字段类型（您可以在协议缓冲区编码中找到更多）。在16到2047范围内的标签需要两个字节。因此，您应该保留标签1到15为非常频繁发生的消息元素。记住留一些空间，经常发生的元素，可能会在未来增加。
+- The SearchRequest message definition specifies three fields (name/value pairs), one for each piece of data that you want to include in this type of message. Each field has a name and a type.
+- SearchRequest 消息定义指定的三个字段, 每一个你想要包含在消息中的数据数据都以(名称/值 对)形式存在。每个字段都有名称和类型。
 
-The smallest tag number you can specify is 1, and the largest is 2^29 - 1, or 536,870,911. You also cannot use the numbers 19000 through 19999 (FieldDescriptor::kFirstReservedNumber through FieldDescriptor::kLastReservedNumber), as they are reserved for the Protocol Buffers implementation - the protocol buffer compiler will complain if you use one of these reserved numbers in your .proto. Similarly, you cannot use any previously reserved tags. 
-您可以指定的最小标签数是1，最大的是2^29 - 1，或536870911。你也不能用数字19000到19999（fielddescriptor::kfirstreservednumber通过fielddescriptor:: klastreservednumber），为他们预留protocol buffer 实现 - 当你在.proto文件中使用保留编号 protocol buffer 编译器将报错。同样，您不能使用任何以前保留的标签。
+### Specifying Field Types 指定字段类型
 
-### Specifying Field Rules
-### 指定字段的规则
+In the above example, all the fields are scalar types: two integers (page_number and result_per_page) and a string (query). However, you can also specify composite types for your fields, including enumerations and other message types.
+在上面的例子中，所有的字段都是数值类型：两个整数（page_number 和 result_per_page）和一个字符串（query）类型。然而，你也可以指定复合类型，包括枚举和其他消息类型。
+
+### Assigning Tags 分配标签
+
+As you can see, each field in the message definition has a unique numbered tag. These tags are used to identify your fields in the message binary format, and should not be changed once your message type is in use. Note that tags with values in the range 1 through 15 take one byte to encode, including the identifying number and the field's type (you can find out more about this in Protocol Buffer Encoding). Tags in the range 16 through 2047 take two bytes. So you should reserve the tags 1 through 15 for very frequently occurring message elements. Remember to leave some room for frequently occurring elements that might be added in the future.
+正如您所看到的，消息定义中的每个字段都有唯一的编号标记。这些标记用于标识消息二进制格式中的字段，并且在您的消息类型使用后不应更改该字段。请注意，标签取值范围在1到15之间，需要一个字节来编码，包括标识号和字段类型（您可以在 [Protocol Buffer Encoding] 中找到更多信息）。标签取值范围在16到2047内，需要两个字节。因此，您应该保留标签1到15为非常频繁使用的消息元素。记住留一些空间，频繁使用的元素，可能会在未来增加。
+
+The smallest tag number you can specify is 1, and the largest is 2^29 - 1, or 536,870,911. You also cannot use the numbers 19000 through 19999 (FieldDescriptor::kFirstReservedNumber through FieldDescriptor::kLastReservedNumber), as they are reserved for the Protocol Buffers implementation - the protocol buffer compiler will complain if you use one of these reserved numbers in your .proto. Similarly, you cannot use any previously reserved tags.
+您可以指定的最小标签数是1，最大的是2^29 - 1，或 536870911。你也不能用数字19000到19999（FieldDescriptor::KFirstReservedNumber 到FieldDescriptor:: KLastReservedNumber），这是 protocol buffer 预留的 - 当你在 .proto 文件中使用保留编号 protocol buffer 编译器将报警。同样，您不能使用任何保留的标签。
+
+### Specifying Field Rules 指定字段的规则
+
 Message fields can be one of the following:
 消息字段可以是下列之一：
 
 - singular: a well-formed message can have zero or one of this field (but not more than one).
-- 一个良好的消息可以有零或一个字段（但不超过一个）。
+- 单一: 一个格式化好的消息字段数据可以有零或一个(但不超过一个)。
+
 - repeated: this field can be repeated any number of times (including zero) in a well-formed message. The order of the repeated values will be preserved.
-- 重复：这个字段可以重复任何数量的时间（包括零）在一个良好的形成的消息。重复值的顺序将被保留。
+- 重复：该字段可以重复任何次（包括零次）在一个格式化好的消息中重复值的顺序不变。
 
-In proto3, repeated fields of scalar numeric types use packed encoding by default. 
-在proto3，重复字段标量数值类型使用默认压缩编码。
+In proto3, repeated fields of scalar numeric types use packed encoding by default.
+在 proto3 中，重复字段数量的数值类型使用默认压缩编码。
 
-You can find out more about packed encoding in Protocol Buffer Encoding. 
-您可以在Protocol Buffer编码中找到更多关于压缩编码的信息。
+You can find out more about packed encoding in Protocol Buffer Encoding.
+您可以在 [Protocol Buffer Encodeing] 中找到更多关于编码的信息。
 
-### Adding More Message Types
-### 添加更多消息类型
-To add comments to your .proto files, use C/C++-style // syntax. 
-要对.proto文件添加注释，请使用C/C++样式 // 语法。 
+### Adding More Message Types 添加更多消息类型
 
-```
+Multiple message types can be defined in a single .proto file. This is useful if you are defining multiple related messages – so, for example, if you wanted to define the reply message format that corresponds to your SearchResponse message type, you could add it to the same .proto:
+可以在单个 .proto 文件中定义多个消息类型。如果需要定义多个相关消息，这很有用 -- 例如，如果您想定义对应于 SearchResponse 消息类型的回应消息格式，可以将其添加到相一个 .proto 中：
+
+``` protobuf
 message SearchRequest {
   string query = 1;
-  int32 page_number = 2;  // Which page number do we want?
-  int32 result_per_page = 3;  // Number of results to return per page.
+  int32 page_number = 2;
+  int32 result_per_page = 3;
+}
+
+message SearchResponse {
+ ...
 }
 ```
 
-### Reserved Fields
-### 保留字段
-If you update a message type by entirely removing a field, or commenting it out, future users can reuse the tag number when making their own updates to the type. This can cause severe issues if they later load old versions of the same .proto, including data corruption, privacy bugs, and so on. One way to make sure this doesn't happen is to specify that the field tags (and/or names, which can also cause issues for JSON serialization) of your deleted fields are reserved. The protocol buffer compiler will complain if any future users try to use these field identifiers. 
-如果通过完全删除字段或注释它来更新消息类型，未来用户在对类型进行更新时可以重复使用标记号。这可能会导致严重的问题，如果他们以后加载旧版本的相同 .proto，包括数据损坏，隐私错误，等等。确保这种情况不会发生的一种方法是指定字段标记（和/或名称，这也可能会导致JSON序列化的问题）删除字段保留。如果将来的用户尝试使用这些字段标识符，protocol buffer 编译器会报错。
+### Adding Comments 添加注释
 
+To add comments to your .proto files, use C/C++-style // and /* ... */ syntax.
+要对 .proto 文件添加注释，请使用C/C++样式 // 和 /* ... */ 语法。
+
+``` protobuf
+/* SearchRequest represents a search query, with pagination options to
+ * indicate which results to include in the response. */
+
+message SearchRequest {
+  string query = 1;
+  int32 page_number = 2;  // 请求的页号?
+  int32 result_per_page = 3;  // 每页返回结果数量.
+}
 ```
+
+### Reserved Fields 保留字段
+
+If you update a message type by entirely removing a field, or commenting it out, future users can reuse the tag number when making their own updates to the type. This can cause severe issues if they later load old versions of the same .proto, including data corruption, privacy bugs, and so on. One way to make sure this doesn't happen is to specify that the field tags (and/or names, which can also cause issues for JSON serialization) of your deleted fields are reserved. The protocol buffer compiler will complain if any future users try to use these field identifiers.
+如果通过完全删除字段或注释它来更新消息类型，未来的用户在对类型进行更新时可以重复使用标记号。这可能会导致严重的问题，如果他们以后加载旧版本的 .proto，将会导致包括数据损坏，隐私错误，等等问题。确保这种情况不会发生的一种方法是指定字段标记（或名称，这也可能会导致JSON序列化的问题）已删除的保留字段。如果将来的用户尝试使用这些字段标识符，protocol buffer 编译器会报错。
+
+``` protobuf
 message Foo {
   reserved 2, 15, 9 to 11;
   reserved "foo", "bar";
 }
 ```
+
+Note that you can't mix field names and tag numbers in the same reserved statement.
 注意，不能在相同的保留语句中混合字段名称和标记编号。
 
-### What's Generated From Your .proto?
-### 你的.proto会产生了什么？
-When you run the protocol buffer compiler on a .proto, the compiler generates the code in your chosen language you'll need to work with the message types you've described in the file, including getting and setting field values, serializing your messages to an output stream, and parsing your messages from an input stream. 
-当您运行protocol buffer编译器编译.proto，编译器生成的代码在你选择的语言，你需要和你的文件所描述的信息类型的工作，包括获取和设置字段的值，将你的信息到输出流，并分析你的信息从输入流。
+### What's Generated From Your .proto? 你的.proto会产生了什么？
+
+When you run the protocol buffer compiler on a .proto, the compiler generates the code in your chosen language you'll need to work with the message types you've described in the file, including getting and setting field values, serializing your messages to an output stream, and parsing your messages from an input stream.
+当您运行[protocol buffer编译器]编译 .proto ，编译器生成你选择的并将使用的语言的代码文件，该代码文件包括获取和设置字段的值，信息到输出流，从输入流解析信息。
+
 - For C++, the compiler generates a .h and .cc file from each .proto, with a class for each message type described in your file.
-- 对于C++，编译器从每个原始文件中生成一个.h 和 .cc 文件，每个文件类型中描述了每个消息类型。
+- 对于C++，编译器从每个 .proto 文件中生成一个 .h 和 .cc 文件，为每个消息类型定义一个 class 。
 - For Java, the compiler generates a .java file with a class for each message type, as well as a special Builder classes for creating message class instances.
-- 对于java，编译器对每一个消息类型生成java类文件，以及一个特殊的生成器类消息创建类的实例。
+- 对于java，编译器为每一个消息类型生成一个 .java 文件，以及一个特殊的 Builder classes 去创建消息类的实例。
 - Python is a little different – the Python compiler generates a module with a static descriptor of each message type in your .proto, which is then used with a metaclass to create the necessary Python data access class at runtime.
-- Python Python编译器生成一个静态的描述在你的每个消息类型的模块有点不同 .proto，然后用一个元类在运行时创建必要的Python数据访问类。
+- Python有一点不一样 Python编译器为 .proto 文件生成一个模块，并为每一个消息生成静态的描述符，然后与 metaclass 一起使用，以便在运行时创建必要的Python数据访问类。
 - For Go, the compiler generates a .pb.go file with a type for each message type in your file.
-- 对于 Go，编译器生成的。pb.go文件一个文件中的每个消息类型。
+- 对于 Go，编译器为每个消息类型生成 .pb.go 文件。
 - For Ruby, the compiler generates a .rb file with a Ruby module containing your message types.
-- 对于 Ruby，编译器用包含你的消息类型的Ruby模块生成一个.rb文件。
+- 对于 Ruby，编译器生成一个 .rb 文件和一个 Ruby module 去包含消息类型。
 - For JavaNano, the compiler output is similar to Java but there are no Builder classes.
-- 于javanano，编译器的输出类似于java但没有生成器类。
+- 对于 JavaNano，编译器的输出类似于 java 但没有 Builder classes。
 - For Objective-C, the compiler generates a pbobjc.h and pbobjc.m file from each .proto, with a class for each message type described in your file.
-- 在Objective-C中，编译器会生成一个pbobjc.h 和pbobjc.m 文件从每个 .proto，与每个消息类型的文件中描述的类。
-- For C#, the compiler generates a .cs file from each .proto, with a class for each message type described in your file. 
-- C#，编译器生成一个 .cs 文件对一个.proto，与每个消息类型的文件中描述的类。
-You can find out more about using the APIs for each language by following the tutorial for your chosen language (proto3 versions coming soon). For even more API details, see the relevant API reference (proto3 versions also coming soon). 
+- 对于 Objective-C，编译器会为每一个 .proto 生成一个 pbobjc.h 和 pbobjc.m 文件，并与为文件中描述的每种消息类型定义一个类
+- For C#, the compiler generates a .cs file from each .proto, with a class for each message type described in your file.
+- 对于 C#，编译器为每一个 .proto 生成一个 .cs 文件，在文件中为每个消息类型定义一个类。
+
+You can find out more about using the APIs for each language by following the tutorial for your chosen language (proto3 versions coming soon). For even more API details, see the relevant API reference (proto3 versions also coming soon).
 你可以找到更多关于使用API的每一种语言都按照你所选择的语言的教程（proto3版本即将推出）。更多API的细节，看到相关的API（proto3版本也即将推出）。
 
-## Scalar Value Types
-## 标量值类型
+## Scalar Value Types 标量值类型
+
 A scalar message field can have one of the following types – the table shows the type specified in the .proto file, and the corresponding type in the automatically generated class: 
 一个标量消息字段可以有以下类型之一-表显示.proto文件中指定的类型，以及自动生成类中的相应类型：
 
