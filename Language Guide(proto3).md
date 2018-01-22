@@ -137,47 +137,48 @@ When you run the protocol buffer compiler on a .proto, the compiler generates th
 You can find out more about using the APIs for each language by following the tutorial for your chosen language (proto3 versions coming soon). For even more API details, see the relevant API reference (proto3 versions also coming soon).
 你可以找到更多关于使用API的每一种语言都按照你所选择的语言的教程（proto3版本即将推出）。更多API的细节，看到相关的API（proto3版本也即将推出）。
 
-## Scalar Value Types 标量值类型
+## Scalar Value Types 数值类型
 
-A scalar message field can have one of the following types – the table shows the type specified in the .proto file, and the corresponding type in the automatically generated class: 
-一个标量消息字段可以有以下类型之一-表显示.proto文件中指定的类型，以及自动生成类中的相应类型：
+A scalar message field can have one of the following types – the table shows the type specified in the .proto file, and the corresponding type in the automatically generated class:
+一个数值消息字段可以有以下类型之一 -- 下表显示.proto文件中指定的类型，以及自动生成类中的相应类型：
 
-|.proto Type|Notes|C++ Type|Java Type|Python Type[2]|Go Type|Ruby Type|C# Type|PHP Type|
-|:---|:---|:---|:---|:---|:---|:---|:---|:---|
+|.proto Type|Notes|注意|C++ Type|Java Type|Python Type[2]|Go Type|Ruby Type|C# Type|PHP Type|
+|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|
 |double||double|double|float|float64|Float|double|float|
 |float||float|float|float|float32|Float|float|float|
-|int32|Uses variable-length encoding. Inefficient for encoding negative numbers – if your field is likely to have negative values, use sint32 instead.[使用可变长度编码。负数编码效率低–如果你的字段可能有负值，使用sint32替代]|int32|int|int|int32|Fixnum or Bignum(as required)|int|integer|
-|int64|Uses variable-length encoding. Inefficient for encoding negative numbers – if your field is likely to have negative values, use sint64 instead.[使用可变长度编码。负数编码效率低–如果你的字段可能有负值，使用sint64替代]|int64|long|int/long[3]|int64|Bignum|long|integer/string[5]|
-|uint32|Uses variable-length encoding.[使用可变长度编码。]|uint32|int[1]|int/long[3]|uint32|Fixnum or Bignum(as required)|uint|integer|
-|uint64|Uses variable-length encoding.[使用可变长度编码。]|uint64|long[1]|int/long[3]|uint64|Bignum|ulong|integer/string|
-|sint32|Uses variable-length encoding. Signed int value. These more efficiently encode negative numbers than regular int32s.[使用可变长度编码。带符号int值。比普通int32编码更有效。]|int32|int|int|int32|Fixnum or Bignum(as required)|int|integer|
-|sint64|Uses variable-length encoding. Signed int value. These more efficiently encode negative numbers than regular int64s.[使用可变长度编码。带符号int值。比普通int64编码更有效。]|int64|long|int/long[3]|int64|Bignum|long|integer/string|
-|fixed32|Always four bytes. More efficient than uint32 if values are often greater than 2^28.[始终四字节。如果值大于2^28往往比UInt32更有效]|uint32|int[1]|int|uint32|Fixnum or Bignum(as required)|uint|integer|
-|fixed64|Always eight bytes. More efficient than uint64 if values are often greater than 2^56.[始终八字节。如果值大于2^56往往比UInt64更有效]|uint64|long[1]|int/long[3]|uint64|Bignum|ulong|integer/string[5]|
-|sfixed32|Always four bytes.[始终四字节。]|int32|int|int|int32|Fixnum or Bignum(as required)|int|integer|
-|sfixed64|Always eight bytes.[始终八字节。]|int64|long|int/long[3]|int64|Bignum|long|integer/string[5]|
+|int32|Uses variable-length encoding. Inefficient for encoding negative numbers – if your field is likely to have negative values, use sint32 instead.|使用可变长度编码。负数编码效率低–如果你的字段可能有负值，使用sint32替代|int32|int|int|int32|Fixnum or Bignum(as required)|int|integer|
+|int64|Uses variable-length encoding. Inefficient for encoding negative numbers – if your field is likely to have negative values, use sint64 instead.|使用可变长度编码。负数编码效率低–如果你的字段可能有负值，使用sint64替代|int64|long|int/long[3]|int64|Bignum|long|integer/string[5]|
+|uint32|Uses variable-length encoding.|使用可变长度编码。|uint32|int[1]|int/long[3]|uint32|Fixnum or Bignum(as required)|uint|integer|
+|uint64|Uses variable-length encoding.|使用可变长度编码。|uint64|long[1]|int/long[3]|uint64|Bignum|ulong|integer/string|
+|sint32|Uses variable-length encoding. Signed int value. These more efficiently encode negative numbers than regular int32s.|使用可变长度编码。带符号int值。比普通int32编码更有效。|int32|int|int|int32|Fixnum or Bignum(as required)|int|integer|
+|sint64|Uses variable-length encoding. Signed int value. These more efficiently encode negative numbers than regular int64s.|使用可变长度编码。带符号int值。比普通int64编码更有效。|int64|long|int/long[3]|int64|Bignum|long|integer/string|
+|fixed32|Always four bytes. More efficient than uint32 if values are often greater than 2^28.|始终四字节。如果值大于 2^28 往往比UInt32更有效|uint32|int[1]|int|uint32|Fixnum or Bignum(as required)|uint|integer|
+|fixed64|Always eight bytes. More efficient than uint64 if values are often greater than 2^56.|始终八字节。如果值大于2^56往往比UInt64更有效|uint64|long[1]|int/long[3]|uint64|Bignum|ulong|integer/string[5]|
+|sfixed32|Always four bytes.|始终四字节。|int32|int|int|int32|Fixnum or Bignum(as required)|int|integer|
+|sfixed64|Always eight bytes.|始终八字节。|int64|long|int/long[3]|int64|Bignum|long|integer/string[5]|
 |bool||bool|boolean|bool|bool|TrueClass/FalseClass|bool|boolean|
-|string|A string must always contain UTF-8 encoded or 7-bit ASCII text.[字符串必须包含UTF-8编码或7位ASCII文本。]|string|String|str/unicode[4]|string|String(UTF-8)|string|string|
-|bytes|May contain any arbitrary sequence of bytes.[可能包含任意字节序列。]|string|ByteString|str|[]byte]|String(ASCII-8BIT)|ByteString|string|
+|string|A string must always contain UTF-8 encoded or 7-bit ASCII text.|字符串必须包含UTF-8编码或7位ASCII文本。|string|String|str/unicode[4]|string|String(UTF-8)|string|string|
+|bytes|May contain any arbitrary sequence of bytes.|可能包含任意字节序列。|string|ByteString|str|[]byte]|String(ASCII-8BIT)|ByteString|string|
 
-You can find out more about how these types are encoded when you serialize your message in Protocol Buffer Encoding. 
-你可以找到更多关于这些类型进行编码，在Protocol Buffer编码文档中。
+You can find out more about how these types are encoded when you serialize your message in Protocol Buffer Encoding.
+你可以找到更多关于这些类型进行编码，在[Protocol Buffer编码]文档中。
 
 [1] In Java, unsigned 32-bit and 64-bit integers are represented using their signed counterparts, with the top bit simply being stored in the sign bit.
-[1] java，无符号32位和64位整数使用签名，表示，与前位被存储在符号位。
+[1] java，无符号32位和64位整数使用它们的有符号对应表示，首位只是存储为符号位。
 [2] In all cases, setting values to a field will perform type checking to make sure it is valid.
 [2] 在所有情况下，设置值到一个字段将执行类型检查，以确保它是有效的。
 [3] 64-bit or unsigned 32-bit integers are always represented as long when decoded, but can be an int if an int is given when setting the field. In all cases, the value must fit in the type represented when set. See [2].
-[3] 在解码时，64位或无符号的32位整数总是表示为长，但如果设置字段时给出int。在所有的情况下，值必须符合设置时所表示的类型。参见[2]。
+[3] 在解码时，64位或无符号的32位整数总是解为 long，但如果设置字段时给出int。在所有的情况下，值必须符合设置时所表示的类型。参见[2]。
 [4] Python strings are represented as unicode on decode but can be str if an ASCII string is given (this is subject to change).
-[4] Python字符串在解码时表示为Unicode，但如果给出ASCII字符串，则可以是STR（这可能会发生变化）。
+[4] Python字符串在解码时为Unicode，但如果给出ASCII字符串，则可以是STR（这可能会发生变化）。
 [5] Integer is used on 64-bit machines and string is used on 32-bit machines.
 [5] 整数用于64位机器，字符串用于32位机器。
 
-## Default Values
-## 默认值
-When a message is parsed, if the encoded message does not contain a particular singular element, the corresponding field in the parsed object is set to the default value for that field. These defaults are type-specific: 
-当解析消息时，如果已编码的消息不包含特定的奇异元素，则解析对象中的相应字段将设置为该字段的默认值。这些默认值是特定类型的：
+## Default Values 默认值
+
+When a message is parsed, if the encoded message does not contain a particular singular element, the corresponding field in the parsed object is set to the default value for that field. These defaults are type-specific:
+当解析消息时，如果已编码的消息不包含特定的元素，则解析对象中的相应字段将设置为该字段的默认值。这些默认值是特定类型的：
+
 - For strings, the default value is the empty string.
 - 对于字符串，默认值是空字符串。
 - For bytes, the default value is empty bytes.
@@ -188,27 +189,27 @@ When a message is parsed, if the encoded message does not contain a particular s
 - 对于数值类型，默认值为零。
 - For enums, the default value is the first defined enum value, which must be 0.
 - 对枚举的默认值是第一个定义的枚举值，它必须是0。
-- For message fields, the field is not set. Its exact value is language-dependent. See the generated code guide for details. 
+- For message fields, the field is not set. Its exact value is language-dependent. See the generated code guide for details.
 - 对于消息字段，字段没有设置。其确切值是语言相关的。有关详细信息，请参见生成的代码指南。
 
 The default value for repeated fields is empty (generally an empty list in the appropriate language).
 重复字段的默认值为空（通常是相应语言中的空列表）。
 
-Note that for scalar message fields, once a message is parsed there's no way of telling whether a field was explicitly set to the default value (for example whether a boolean was set to false) or just not set at all: you should bear this in mind when defining your message types. For example, don't have a boolean that switches on some behaviour when set to false if you don't want that behaviour to also happen by default. Also note that if a scalar message field is set to its default, the value will not be serialized on the wire. 
+Note that for scalar message fields, once a message is parsed there's no way of telling whether a field was explicitly set to the default value (for example whether a boolean was set to false) or just not set at all: you should bear this in mind when defining your message types. For example, don't have a boolean that switches on some behaviour when set to false if you don't want that behaviour to also happen by default. Also note that if a scalar message field is set to its default, the value will not be serialized on the wire.
 注意，对于标量消息字段，一旦消息被解析，就无法判断字段是否显式设置为默认值（例如，是否将一个布尔设置为false）或根本没有设置：在定义消息类型时，您应该记住这一点。例如，如果你不希望这种行为在默认情况下发生，那么当你设置为false时，不要有一个布尔值来切换某些行为。还要注意的是，如果标量消息字段设置为默认值，则该值不会在线程上序列化。
 
-See the generated code guide for your chosen language for more details about how defaults work in generated code. 
+See the generated code guide for your chosen language for more details about how defaults work in generated code.
 有关所选语言的默认代码在生成代码中的作用，请参见所选语言的生成代码指南。
 
-## Enumerations
-## 枚举
+## Enumerations 枚举
+
 When you're defining a message type, you might want one of its fields to only have one of a pre-defined list of values. For example, let's say you want to add a corpus field for each SearchRequest, where the corpus can be UNIVERSAL, WEB, IMAGES, LOCAL, NEWS, PRODUCTS or VIDEO. You can do this very simply by adding an enum to your message definition with a constant for each possible value. 
 定义消息类型时，可能希望其字段中只有一个预定义的值列表。例如，假设你想为每个SearchRequest添加一个语料库，语料库，可以通用，网页，图像，本地新闻，产品或视频。你可以很简单的通过添加一个枚举你的消息定义一个常数为每个可能的值。
 
 In the following example we've added an enum called Corpus with all the possible values, and a field of type Corpus:
 在下面的例子中我们已经添加了一个枚举所有可能的值称为Corpus，一个Corpus字段：
 
-```
+``` protobuf
 message SearchRequest {
   string query = 1;
   int32 page_number = 2;
@@ -226,9 +227,10 @@ message SearchRequest {
 }
 ```
 
-As you can see, the Corpus enum's first constant maps to zero: every enum definition must contain a constant that maps to zero as its first element. This is because: 
+As you can see, the Corpus enum's first constant maps to zero: every enum definition must contain a constant that maps to zero as its first element. This is because:
 你可以看到，Corpus的枚举的第一常量为零：每个枚举定义必须包含一个常数，零作为它的第一个元素。这是因为：
-- There must be a zero value, so that we can use 0 as a numeric default value. 
+
+- There must be a zero value, so that we can use 0 as a numeric default value.
 - 必须有一零个值，以便我们可以使用0作为数值默认值。
 - The zero value needs to be the first element, for compatibility with the proto2 semantics where the first enum value is always the default. 
 - 零值需要的第一个值，与proto2语义，第一个枚举值始终是默认的兼容性。
